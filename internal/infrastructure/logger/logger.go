@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"github.com/Me1onRind/mr_agent/internal/infrastructure/tracer"
 	"io"
 	"log/slog"
 	"os"
@@ -32,11 +33,18 @@ func InitLogger(w io.Writer, level slog.Level) {
 }
 
 func contextLogger(ctx context.Context) *slog.Logger {
-	lg := ctx.Value(loggerKey{})
-	if lg == nil {
-		return globalLogger
+	lgValue := ctx.Value(loggerKey{})
+	if lgValue == nil {
+		lgValue = globalLogger
 	}
-	return lg.(*slog.Logger)
+
+	lg := lgValue.(*slog.Logger)
+
+	spanId := tracer.GetSpanId(ctx)
+	if len(spanId) > 0 {
+		lg = lg.With(slog.String("span_id", spanId))
+	}
+	return lg
 }
 
 func With(ctx context.Context, args ...any) context.Context {
@@ -45,18 +53,18 @@ func With(ctx context.Context, args ...any) context.Context {
 	return ctx
 }
 
-func Debugf(ctx context.Context, msg string, args ...any) {
+func Debug(ctx context.Context, msg string, args ...any) {
 	contextLogger(ctx).Debug(msg, args...)
 }
 
-func Infof(ctx context.Context, msg string, args ...any) {
+func Info(ctx context.Context, msg string, args ...any) {
 	contextLogger(ctx).Info(msg, args...)
 }
 
-func Warnf(ctx context.Context, msg string, args ...any) {
+func Warn(ctx context.Context, msg string, args ...any) {
 	contextLogger(ctx).Warn(msg, args...)
 }
 
-func Errorf(ctx context.Context, msg string, args ...any) {
+func Error(ctx context.Context, msg string, args ...any) {
 	contextLogger(ctx).Error(msg, args...)
 }

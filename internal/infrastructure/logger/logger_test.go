@@ -38,22 +38,22 @@ func TestLogger_Print(t *testing.T) {
 		output      string
 	}{
 		{
-			printAction: Debugf,
+			printAction: Debug,
 			logLevel:    "DEBUG",
 			output:      "time=\"2026-01-26 22:08:50\" level=DEBUG msg=test key=value\n",
 		},
 		{
-			printAction: Infof,
+			printAction: Info,
 			logLevel:    "INFO",
 			output:      "time=\"2026-01-26 22:08:50\" level=INFO msg=test key=value\n",
 		},
 		{
-			printAction: Warnf,
+			printAction: Warn,
 			logLevel:    "WARN",
 			output:      "time=\"2026-01-26 22:08:50\" level=WARN msg=test key=value\n",
 		},
 		{
-			printAction: Errorf,
+			printAction: Error,
 			logLevel:    "ERROR",
 			output:      "time=\"2026-01-26 22:08:50\" level=ERROR msg=test key=value\n",
 		},
@@ -79,25 +79,25 @@ func TestLogger_With(t *testing.T) {
 		with        slog.Attr
 	}{
 		{
-			printAction: Debugf,
+			printAction: Debug,
 			logLevel:    "DEBUG",
 			output:      "time=\"2026-01-26 22:08:50\" level=DEBUG msg=test request_id=test10086 key=value\n",
 			with:        slog.String("request_id", "test10086"),
 		},
 		{
-			printAction: Infof,
+			printAction: Info,
 			logLevel:    "INFO",
 			output:      "time=\"2026-01-26 22:08:50\" level=INFO msg=test count=123 key=value\n",
 			with:        slog.Int("count", 123),
 		},
 		{
-			printAction: Warnf,
+			printAction: Warn,
 			logLevel:    "WARN",
 			output:      "time=\"2026-01-26 22:08:50\" level=WARN msg=test result=true key=value\n",
 			with:        slog.Bool("result", true),
 		},
 		{
-			printAction: Errorf,
+			printAction: Error,
 			logLevel:    "ERROR",
 			output:      "time=\"2026-01-26 22:08:50\" level=ERROR msg=test duration=1s key=value\n",
 			with:        slog.Duration("duration", time.Second),
