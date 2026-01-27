@@ -1,5 +1,5 @@
 http_run:
-	go run ./cmd/http/main.go
+	go run ./cmd/api/main.go
 
 lint:
 	golangci-lint run -v ./...
