@@ -5,7 +5,7 @@ import (
 	"io"
 	"log/slog"
 
-	"github.com/Me1onRind/mr_agent/internal/infrastructure/tracer"
+	"go.elastic.co/apm"
 )
 
 type loggerKey struct{}
@@ -38,15 +38,6 @@ func InitLogger(w io.Writer, level slog.Level, json bool) {
 	slog.SetDefault(lg)
 }
 
-func CtxLoggerWithSpanId(ctx context.Context) *slog.Logger {
-	lg := CtxLogger(ctx)
-	spanId := tracer.GetSpanId(ctx)
-	if len(spanId) > 0 {
-		lg = lg.With(slog.String("span_id", spanId))
-	}
-	return lg
-}
-
 func CtxLogger(ctx context.Context) *slog.Logger {
 	var lg *slog.Logger
 	lgValue := ctx.Value(loggerKey{})
@@ -55,10 +46,15 @@ func CtxLogger(ctx context.Context) *slog.Logger {
 	} else {
 		lg = lgValue.(*slog.Logger)
 	}
-	return lg
-}
 
-func WithLogger(ctx context.Context, args ...any) context.Context {
-	lg := CtxLogger(ctx).With(args...)
-	return context.WithValue(ctx, loggerKey{}, lg)
+	var traceCtx apm.TraceContext
+	if span := apm.SpanFromContext(ctx); span != nil {
+		traceCtx = span.TraceContext()
+	} else if transaction := apm.TransactionFromContext(ctx); transaction != nil {
+		traceCtx = transaction.TraceContext()
+	}
+	return lg.With(
+		slog.String("trace_id", traceCtx.Trace.String()),
+		slog.String("span_id", traceCtx.Span.String()),
+	)
 }

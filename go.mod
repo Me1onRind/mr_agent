@@ -5,10 +5,8 @@ go 1.25.5
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/json-iterator/go v1.1.12
-	github.com/opentracing/opentracing-go v1.2.0
+	github.com/openai/openai-go/v3 v3.17.0
 	go.elastic.co/apm v1.15.0
-	go.elastic.co/apm/module/apmhttp v1.15.0
-	go.elastic.co/apm/module/apmot v1.15.0
 )
 
 require (
@@ -39,6 +37,10 @@ require (
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.54.0 // indirect
 	github.com/santhosh-tekuri/jsonschema v1.2.4 // indirect
+	github.com/tidwall/gjson v1.18.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	go.elastic.co/fastjson v1.1.0 // indirect

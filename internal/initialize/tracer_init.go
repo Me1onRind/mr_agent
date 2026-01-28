@@ -4,9 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/opentracing/opentracing-go"
 	"go.elastic.co/apm"
-	"go.elastic.co/apm/module/apmot"
 )
 
 func InitOpentracing(serviceName, version string) func(context.Context) error {
@@ -20,7 +18,7 @@ func InitOpentracing(serviceName, version string) func(context.Context) error {
 		if err != nil {
 			return err
 		}
-		opentracing.SetGlobalTracer(apmot.New(apmot.WithTracer(tracer)))
+		apm.DefaultTracer = tracer
 		return nil
 	}
 }

@@ -8,17 +8,20 @@ import (
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/logger"
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/middleware"
 	"github.com/Me1onRind/mr_agent/internal/initialize"
+	"github.com/Me1onRind/mr_agent/internal/usecase/chat"
 	"github.com/Me1onRind/mr_agent/internal/usecase/ping"
 	"github.com/gin-gonic/gin"
 )
 
 type APIServer struct {
 	PingUsecase *ping.PingUsecase
+	ChatUsecase *chat.ChatUsecase
 }
 
 func NewAPIServer() *APIServer {
 	a := &APIServer{
 		PingUsecase: ping.NewPingUsecase(),
+		ChatUsecase: chat.NewChatUsecase(),
 	}
 	return a
 }
@@ -38,6 +41,10 @@ func (a *APIServer) RegisterRouter(router *gin.RouterGroup) *APIServer {
 	pingGroup := router.Group("/ping")
 	pingGroup.POST("/echo", middleware.JSON(a.PingUsecase.Echo))
 	pingGroup.POST("/panic", middleware.JSON(a.PingUsecase.Panic))
+	pingGroup.POST("/hello_to_agent", middleware.JSON(a.PingUsecase.HelloToAgent))
+
+	chatGroup := router.Group("/chat")
+	chatGroup.POST("/chat", middleware.JSON(a.ChatUsecase.Chat))
 
 	return a
 }
