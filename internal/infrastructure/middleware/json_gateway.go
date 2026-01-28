@@ -33,8 +33,8 @@ func jsonGateway[A any, B any](c *gin.Context, handler HTTPHandler[A, B]) []byte
 	var request A
 	if err := c.ShouldBind(&request); err != nil {
 		response = &JsonResponse{
-			Code:    -1,
-			Message: fmt.Sprintf("Decode request text fail, cause:[%s]", err),
+			Code:    errcode.ParamInvalidCode,
+			Message: fmt.Sprintf("Decode Request Body Failed, cause:[%s]", err),
 		}
 	} else {
 		data, err := handler(ctx, &request)
@@ -43,10 +43,10 @@ func jsonGateway[A any, B any](c *gin.Context, handler HTTPHandler[A, B]) []byte
 
 	jsonData, err := jsoniter.Marshal(response)
 	if err != nil {
-		logger.CtxLoggerWithSpanId(ctx).Error("Marshal response fail", slog.String("error", err.Error()))
+		logger.CtxLoggerWithSpanId(ctx).Error("marshal response failed", slog.String("error", err.Error()))
 		jsonData, _ = jsoniter.Marshal(&JsonResponse{
 			Code:    errcode.JsonEncodeFailedCode,
-			Message: fmt.Sprintf("JSON Gateway encode response fail, err:[%s]", err.Error()),
+			Message: fmt.Sprintf("Encode Response Object Failed, cause:[%s]", err.Error()),
 		})
 	}
 	return jsonData
