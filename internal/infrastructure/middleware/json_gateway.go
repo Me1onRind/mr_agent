@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/Me1onRind/mr_agent/internal/errcode"
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
 	jsoniter "github.com/json-iterator/go"
@@ -44,7 +45,7 @@ func jsonGateway[A any, B any](c *gin.Context, handler HTTPHandler[A, B]) []byte
 	if err != nil {
 		logger.CtxLoggerWithSpanId(ctx).Error("Marshal response fail", slog.String("error", err.Error()))
 		jsonData, _ = jsoniter.Marshal(&JsonResponse{
-			Code:    -2,
+			Code:    errcode.JsonEncodeFailedCode,
 			Message: fmt.Sprintf("JSON Gateway encode response fail, err:[%s]", err.Error()),
 		})
 	}
@@ -54,20 +55,20 @@ func jsonGateway[A any, B any](c *gin.Context, handler HTTPHandler[A, B]) []byte
 func getResponse(data any, err error) *JsonResponse {
 	response := &JsonResponse{}
 	if err == nil {
-		response.Code = 0
+		response.Code = errcode.SuccessCode
 		response.Message = "Success"
 		response.Data = data
 		return response
 	}
 	response.Message = err.Error()
-	//if expectErr := customErr.ExtractError(err); expectErr != nil {
-	//response.Code = expectErr.Code
-	//} else {
-	//response.Code = code.Unexpect
-	//}
+	if expectErr := errcode.ExtractError(err); expectErr != nil {
+		response.Code = expectErr.Code
+	} else {
+		response.Code = errcode.UnexpectCode
+	}
 
-	//if code.IsWarning(response.Code) {
-	//response.Data = data
-	//}
+	if errcode.IsWarning(response.Code) {
+		response.Data = data
+	}
 	return response
 }

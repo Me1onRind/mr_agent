@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/Me1onRind/mr_agent/internal/app/api"
@@ -10,10 +11,11 @@ import (
 func main() {
 	r := gin.New()
 
+	ctx := context.Background()
 	api.NewAPIServer().
 		RegisterMiddleware(r).
 		RegisterRouter(r.Group("/")).
-		Init()
+		Init(ctx)
 
 	if err := r.Run(); err != nil {
 		fmt.Println(err)

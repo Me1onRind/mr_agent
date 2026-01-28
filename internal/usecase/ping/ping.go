@@ -3,7 +3,7 @@ package ping
 import (
 	"context"
 
-	"github.com/Me1onRind/mr_agent/protocol/http/ping"
+	"github.com/Me1onRind/mr_agent/internal/protocol/http/ping"
 )
 
 type PingUsecase struct {
@@ -18,4 +18,8 @@ func (p *PingUsecase) Echo(ctx context.Context, request *ping.EchoRequest) (*pin
 		Msg: request.Msg,
 	}
 	return resp, nil
+}
+
+func (p *PingUsecase) Panic(ctx context.Context, request *struct{}) (*struct{}, error) {
+	panic("This is panic")
 }

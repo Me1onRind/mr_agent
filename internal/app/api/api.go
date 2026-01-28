@@ -37,12 +37,13 @@ func (a *APIServer) RegisterRouter(router *gin.RouterGroup) *APIServer {
 
 	pingGroup := router.Group("/ping")
 	pingGroup.POST("/echo", middleware.JSON(a.PingUsecase.Echo))
+	pingGroup.POST("/panic", middleware.JSON(a.PingUsecase.Panic))
 
 	return a
 }
 
-func (a *APIServer) Init() *APIServer {
+func (a *APIServer) Init(ctx context.Context) *APIServer {
 	logger.InitLogger(os.Stdout, slog.LevelDebug, true)
-	initialize.InitOpentracing("mr_agent", "0.0.1")(context.TODO())
+	_ = initialize.InitOpentracing("mr_agent", "0.0.1")(ctx)
 	return a
 }
