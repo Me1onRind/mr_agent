@@ -38,7 +38,7 @@ func InitLogger(w io.Writer, level slog.Level, json bool) {
 	slog.SetDefault(lg)
 }
 
-func CtxLoggerWithSpandId(ctx context.Context) *slog.Logger {
+func CtxLoggerWithSpanId(ctx context.Context) *slog.Logger {
 	lg := CtxLogger(ctx)
 	spanId := tracer.GetSpanId(ctx)
 	if len(spanId) > 0 {

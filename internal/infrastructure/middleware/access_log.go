@@ -22,7 +22,7 @@ func AccessLog() gin.HandlerFunc {
 		if contentType == "application/json" || contentType == "text/plain" {
 			request, err = c.GetRawData()
 			if err != nil {
-				logger.CtxLoggerWithSpandId(ctx).Error("GetRawData faile", slog.String("error", err.Error()))
+				logger.CtxLoggerWithSpanId(ctx).Error("GetRawData failed", slog.String("error", err.Error()))
 			} else {
 				c.Request.Body = io.NopCloser(bytes.NewBuffer(request))
 			}
@@ -36,15 +36,15 @@ func AccessLog() gin.HandlerFunc {
 		start := time.Now()
 		defer func() {
 			end := time.Now()
-			logger.CtxLoggerWithSpandId(ctx).Info("http request done",
+			logger.CtxLoggerWithSpanId(ctx).Info("http request done",
 				slog.String("client_id", c.ClientIP()),
 				slog.String("method", c.Request.Method),
 				slog.String("proto", c.Request.Proto),
 				slog.String("host", c.Request.Host),
 				slog.String("path", c.Request.RequestURI),
 				slog.Any("req_header", c.Request.Header),
-				slog.String("req_body", string(request)),
-				slog.String("resp_body", lw.buff.String()),
+				slog.String("req_body", truncateBody(string(request))),
+				slog.String("resp_body", truncateBody(lw.buff.String())),
 				slog.Int64("cost", end.Sub(start).Milliseconds()),
 			)
 		}()
@@ -61,4 +61,14 @@ type logWriter struct {
 func (w *logWriter) Write(b []byte) (int, error) {
 	w.buff.Write(b)
 	return w.ResponseWriter.Write(b)
+}
+
+func truncateBody(body string) string {
+	const maxSize = 1024
+	if len(body) <= maxSize {
+		return body
+	}
+	const headSize = maxSize / 2
+	const tailSize = maxSize / 2
+	return body[:headSize] + "......" + body[len(body)-tailSize:]
 }

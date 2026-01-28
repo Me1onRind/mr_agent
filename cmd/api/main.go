@@ -10,7 +10,7 @@ import (
 func main() {
 	r := gin.New()
 
-	api.NewApiServer().
+	api.NewAPIServer().
 		RegisterMiddleware(r).
 		RegisterRouter(r.Group("/")).
 		Init()

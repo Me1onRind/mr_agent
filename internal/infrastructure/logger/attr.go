@@ -22,7 +22,7 @@ func replaceAttr(groups []string, a slog.Attr) slog.Attr {
 			fileName := filepath.Base(source.File)
 			function := extractFuncName(source.Function)
 			line := source.Line
-			return slog.String(slog.SourceKey, fmt.Sprintf("%s:%d %s", fileName, line, function))
+			return slog.String(slog.SourceKey, fmt.Sprintf("%s %s:%d", function, fileName, line))
 		}
 		return a
 	default:
