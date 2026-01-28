@@ -45,7 +45,7 @@ func AccessLog() gin.HandlerFunc {
 				slog.Any("req_header", c.Request.Header),
 				slog.String("req_body", string(request)),
 				slog.String("resp_body", lw.buff.String()),
-				slog.Duration("cost", end.Sub(start)),
+				slog.Int64("cost", end.Sub(start).Milliseconds()),
 			)
 		}()
 
