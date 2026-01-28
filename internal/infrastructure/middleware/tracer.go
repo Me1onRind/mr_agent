@@ -17,32 +17,33 @@ import (
 func Tracer() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		traceId, spanId, span := newSpanInfo(ctx, c.Request.URL.Path, c.Request.Header)
+		traceId, spanId, span := newSpan(ctx, c.Request.URL.Path, c.Request.Header)
 		defer span.Finish()
 
 		ctx = tracer.WithTrace(ctx, traceId, spanId)
 		ctx = tracer.WithSpan(ctx, span)
-		ctx = logger.With(ctx, slog.String("trace_id", traceId))
+		ctx = logger.WithLogger(ctx, slog.String("trace_id", traceId))
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
 }
 
-func newSpanInfo(ctx context.Context, spanName string, header http.Header) (string, string, opentracing.Span) {
+func newSpan(ctx context.Context, spanName string, header http.Header) (string, string, opentracing.Span) {
 	carrier := opentracing.HTTPHeadersCarrier(header)
 
 	var traceId, spanId string
 	var span opentracing.Span
 	spanContext, err := opentracing.GlobalTracer().Extract(opentracing.HTTPHeaders, carrier)
 
+	log := logger.CtxLogger(ctx)
 	if spanContext == nil {
 		if err != nil && !errors.Is(err, opentracing.ErrSpanContextNotFound) {
-			logger.Warn(ctx, "extract span failed", slog.String("error", err.Error()), slog.Any("carrier", carrier))
+			log.Warn("extract span failed", slog.String("error", err.Error()), slog.Any("carrier", carrier))
 		}
 		span = opentracing.GlobalTracer().StartSpan(spanName)
 		carrier := opentracing.HTTPHeadersCarrier{}
 		if err := opentracing.GlobalTracer().Inject(span.Context(), opentracing.HTTPHeaders, &carrier); err != nil {
-			logger.Warn(ctx, "inject span failed", slog.String("error", err.Error()), slog.Any("carrier", carrier))
+			log.Warn("inject span failed", slog.String("error", err.Error()), slog.Any("carrier", carrier))
 		} else {
 			traceId, spanId = traceIdAndSpanIdFromSpan(carrier)
 		}
@@ -52,7 +53,7 @@ func newSpanInfo(ctx context.Context, spanName string, header http.Header) (stri
 	}
 
 	if len(traceId) == 0 || len(spanId) == 0 {
-		logger.Warn(ctx, "one of trace_id, span_id is empty",
+		log.Warn("one of trace_id, span_id is empty",
 			slog.String("trace_id", traceId), slog.String("span_id", spanId), slog.Any("carrier", carrier))
 	}
 

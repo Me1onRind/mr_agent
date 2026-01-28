@@ -1,7 +1,10 @@
 package logger
 
 import (
+	"fmt"
 	"log/slog"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -10,9 +13,29 @@ var (
 )
 
 func replaceAttr(groups []string, a slog.Attr) slog.Attr {
-	if a.Key == slog.TimeKey {
+	switch a.Key {
+	case slog.TimeKey:
 		t := a.Value.Time()
-		return slog.String(slog.TimeKey, t.In(loc).Format("2006-01-02 15:04:05"))
+		return slog.String(slog.TimeKey, t.In(loc).Format("2006-01-02 15:04:05.000"))
+	case slog.SourceKey:
+		if source, ok := a.Value.Any().(*slog.Source); ok {
+			fileName := filepath.Base(source.File)
+			function := extractFuncName(source.Function)
+			line := source.Line
+			return slog.String(slog.SourceKey, fmt.Sprintf("%s:%d %s", fileName, line, function))
+		}
+		return a
+	default:
+		return a
 	}
-	return a
+}
+
+func extractFuncName(s string) string {
+	if s == "" {
+		return ""
+	}
+	if idx := strings.LastIndex(s, "/"); idx >= 0 && idx < len(s)-1 {
+		return s[idx+1:]
+	}
+	return s
 }

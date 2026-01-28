@@ -8,7 +8,6 @@ import (
 
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/logger"
 	"github.com/gin-gonic/gin"
-	jsoniter "github.com/json-iterator/go"
 )
 
 func AccessLog() gin.HandlerFunc {
@@ -23,7 +22,7 @@ func AccessLog() gin.HandlerFunc {
 		if contentType == "application/json" || contentType == "text/plain" {
 			request, err = c.GetRawData()
 			if err != nil {
-				logger.Error(ctx, "GetRawData faile", slog.String("error", err.Error()))
+				logger.CtxLoggerWithSpandId(ctx).Error("GetRawData faile", slog.String("error", err.Error()))
 			} else {
 				c.Request.Body = io.NopCloser(bytes.NewBuffer(request))
 			}
@@ -37,17 +36,13 @@ func AccessLog() gin.HandlerFunc {
 		start := time.Now()
 		defer func() {
 			end := time.Now()
-			reqHeader, err := jsoniter.MarshalToString(c.Request.Header)
-			if err != nil {
-				logger.Warn(ctx, "MarshalToString request header failed", slog.String("error", err.Error()))
-			}
-			logger.Info(ctx, "http request done",
+			logger.CtxLoggerWithSpandId(ctx).Info("http request done",
 				slog.String("client_id", c.ClientIP()),
 				slog.String("method", c.Request.Method),
 				slog.String("proto", c.Request.Proto),
 				slog.String("host", c.Request.Host),
 				slog.String("path", c.Request.RequestURI),
-				slog.String("req_header", reqHeader),
+				slog.Any("req_header", c.Request.Header),
 				slog.String("req_body", string(request)),
 				slog.String("resp_body", lw.buff.String()),
 				slog.Duration("cost", end.Sub(start)),

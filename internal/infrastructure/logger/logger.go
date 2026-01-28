@@ -2,44 +2,44 @@ package logger
 
 import (
 	"context"
-	"github.com/Me1onRind/mr_agent/internal/infrastructure/tracer"
 	"io"
 	"log/slog"
-	"os"
-)
 
-var globalLogger *slog.Logger = slog.New(
-	slog.NewTextHandler(
-		os.Stdout,
-		&slog.HandlerOptions{
-			ReplaceAttr: replaceAttr,
-			Level:       slog.LevelDebug,
-		},
-	),
+	"github.com/Me1onRind/mr_agent/internal/infrastructure/tracer"
 )
 
 type loggerKey struct{}
 
-func InitLogger(w io.Writer, level slog.Level) {
-	globalLogger = slog.New(
-		slog.NewTextHandler(
-			w,
-			&slog.HandlerOptions{
-				ReplaceAttr: replaceAttr,
-				Level:       level,
-			},
-		),
-	)
+func InitLogger(w io.Writer, level slog.Level, json bool) {
+	var lg *slog.Logger
+	if json {
+		lg = slog.New(
+			slog.NewJSONHandler(
+				w,
+				&slog.HandlerOptions{
+					ReplaceAttr: replaceAttr,
+					Level:       level,
+					AddSource:   true,
+				},
+			),
+		)
+	} else {
+		lg = slog.New(
+			slog.NewTextHandler(
+				w,
+				&slog.HandlerOptions{
+					ReplaceAttr: replaceAttr,
+					Level:       level,
+					AddSource:   true,
+				},
+			),
+		)
+	}
+	slog.SetDefault(lg)
 }
 
-func contextLogger(ctx context.Context) *slog.Logger {
-	lgValue := ctx.Value(loggerKey{})
-	if lgValue == nil {
-		lgValue = globalLogger
-	}
-
-	lg := lgValue.(*slog.Logger)
-
+func CtxLoggerWithSpandId(ctx context.Context) *slog.Logger {
+	lg := CtxLogger(ctx)
 	spanId := tracer.GetSpanId(ctx)
 	if len(spanId) > 0 {
 		lg = lg.With(slog.String("span_id", spanId))
@@ -47,24 +47,18 @@ func contextLogger(ctx context.Context) *slog.Logger {
 	return lg
 }
 
-func With(ctx context.Context, args ...any) context.Context {
-	logger := globalLogger.With(args...)
-	ctx = context.WithValue(ctx, loggerKey{}, logger)
-	return ctx
+func CtxLogger(ctx context.Context) *slog.Logger {
+	var lg *slog.Logger
+	lgValue := ctx.Value(loggerKey{})
+	if lgValue == nil {
+		lg = slog.Default()
+	} else {
+		lg = lgValue.(*slog.Logger)
+	}
+	return lg
 }
 
-func Debug(ctx context.Context, msg string, args ...any) {
-	contextLogger(ctx).Debug(msg, args...)
-}
-
-func Info(ctx context.Context, msg string, args ...any) {
-	contextLogger(ctx).Info(msg, args...)
-}
-
-func Warn(ctx context.Context, msg string, args ...any) {
-	contextLogger(ctx).Warn(msg, args...)
-}
-
-func Error(ctx context.Context, msg string, args ...any) {
-	contextLogger(ctx).Error(msg, args...)
+func WithLogger(ctx context.Context, args ...any) context.Context {
+	lg := CtxLogger(ctx).With(args...)
+	return context.WithValue(ctx, loggerKey{}, lg)
 }

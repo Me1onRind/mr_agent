@@ -1,7 +1,13 @@
 package api
 
 import (
+	"context"
+	"log/slog"
+	"os"
+
+	"github.com/Me1onRind/mr_agent/internal/infrastructure/logger"
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/middleware"
+	"github.com/Me1onRind/mr_agent/internal/initialize"
 	"github.com/Me1onRind/mr_agent/internal/usecase/ping"
 	"github.com/gin-gonic/gin"
 )
@@ -36,5 +42,7 @@ func (a *ApiServer) RegisterRouter(router *gin.RouterGroup) *ApiServer {
 }
 
 func (a *ApiServer) Init() *ApiServer {
+	logger.InitLogger(os.Stdout, slog.LevelDebug, true)
+	initialize.InitOpentracing("mr_agent", "0.0.1")(context.TODO())
 	return a
 }

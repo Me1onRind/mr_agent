@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/logger"
@@ -20,12 +21,12 @@ type HTTPHandler[A any, B any] func(c context.Context, request *A) (data *B, err
 
 func JSON[A any, B any](handler HTTPHandler[A, B]) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Data(http.StatusOK, "application/json; charset=utf-8", jsonGateWay(c, handler))
+		c.Data(http.StatusOK, "application/json; charset=utf-8", jsonGateway(c, handler))
 		c.Next()
 	}
 }
 
-func jsonGateWay[A any, B any](c *gin.Context, handler HTTPHandler[A, B]) []byte {
+func jsonGateway[A any, B any](c *gin.Context, handler HTTPHandler[A, B]) []byte {
 	ctx := c.Request.Context()
 
 	var response *JsonResponse
@@ -42,7 +43,7 @@ func jsonGateWay[A any, B any](c *gin.Context, handler HTTPHandler[A, B]) []byte
 
 	jsonData, err := jsoniter.Marshal(response)
 	if err != nil {
-		logger.Error(ctx, "Marshal response fail, err:[%s]", err)
+		logger.CtxLoggerWithSpandId(ctx).Error("Marshal response fail", slog.String("error", err.Error()))
 		jsonData, _ = jsoniter.Marshal(&JsonResponse{
 			Code:    -2,
 			Message: fmt.Sprintf("JSON Gateway encode response fail, err:[%s]", err.Error()),
