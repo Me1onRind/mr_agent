@@ -18,7 +18,7 @@ func NewChatUsecase() *ChatUsecase {
 }
 
 func (a *ChatUsecase) Chat(ctx context.Context, request *chat.ChatRequest) (*chat.ChatResponse, error) {
-	reply, err := a.DialogDomain.Dialog(ctx, request.Msg)
+	reply, err := a.DialogDomain.Dialog(ctx, request.Msg, true)
 	if err != nil {
 		return nil, err
 	}

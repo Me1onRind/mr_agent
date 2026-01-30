@@ -10,7 +10,7 @@
 └── internal
     ├── app                     Application assembly
     │   └── api                  API wiring & bootstrap
-    │   └── cli                  CLI wiring & bootstrap
+    │   └── cli                  CLI wiring & flags
     ├── domain                  Domain layer
     │   └── dialog               Dialog domain
     ├── errcode                 Error codes & wrappers
@@ -21,6 +21,7 @@
     │   │   └── agent            Agent client
     │   ├── goroutine            Goroutine helpers
     │   ├── logger               Logger implementation
+    │   ├── session              Session store (in-memory)
     │   └── middleware           Middleware
     ├── initialize              Initializers
     ├── pkg                     Shared utilities
@@ -38,10 +39,11 @@
 
 - `Ping` endpoint: health check & availability
 - `Chat` endpoint: chat entrypoint
-- `CLI` entry: dialog with LLM in terminal
+- `CLI` entry: dialog with LLM in terminal (line-based input)
 - Middleware: access logs, JSON gateway, recovery, tracing
 - Cache: LLM cache and simple cache implementation
-- Core utilities: logging, error codes, goroutine helpers, client wrappers
+- Session: in-memory session store for dialog context
+- Core utilities: logging, error codes, goroutine helpers, client wrappers, string utils
 
 ## Run
 ### API Service

@@ -52,7 +52,10 @@ func CtxLogger(ctx context.Context) *slog.Logger {
 		traceCtx = span.TraceContext()
 	} else if transaction := apm.TransactionFromContext(ctx); transaction != nil {
 		traceCtx = transaction.TraceContext()
+	} else {
+		return lg
 	}
+
 	return lg.With(
 		slog.String("trace_id", traceCtx.Trace.String()),
 		slog.String("span_id", traceCtx.Span.String()),

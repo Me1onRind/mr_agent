@@ -10,12 +10,15 @@ import (
 	"strings"
 
 	"github.com/Me1onRind/mr_agent/internal/domain/dialog"
+	"github.com/Me1onRind/mr_agent/internal/infrastructure/cache/llm"
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/logger"
+	"github.com/Me1onRind/mr_agent/internal/infrastructure/session"
 	"github.com/Me1onRind/mr_agent/internal/initialize"
 )
 
 type CLIService struct {
 	DialogDomain *dialog.DialogDomain
+	params       *Params
 }
 
 func NewCLIService() *CLIService {
@@ -26,14 +29,22 @@ func NewCLIService() *CLIService {
 }
 
 func (c *CLIService) Init(ctx context.Context) *CLIService {
-	logger.InitLogger(os.Stdout, slog.LevelError, true)
+	logger.InitLogger(os.Stdout, slog.LevelError, false)
 	_ = initialize.InitOpentracing("mr_agent", "0.0.1")(ctx)
+	_ = llm.InitLLMCache(ctx)
+	_ = session.InitSessionStore(ctx)
+	c.params = parseCliParams()
 	return c
 }
 
 func (c *CLIService) Run(ctx context.Context) error {
 	log := logger.CtxLogger(ctx)
-	fmt.Println("Hello, here is dialog with llm")
+	ctx, err := session.NewSession(ctx, &session.Data{})
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Hello, here is dialog with llm, dialog mode:%s\n", c.params.Mode.Name())
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		fmt.Print("You: ")
@@ -54,7 +65,7 @@ func (c *CLIService) Run(ctx context.Context) error {
 			}
 			continue
 		}
-		reply, err := c.DialogDomain.Dialog(ctx, input)
+		reply, err := c.DialogDomain.Dialog(ctx, input, c.params.WithContext())
 		if err != nil {
 			log.Error("c.DialogDomain.Dialog failed", slog.String("error", err.Error()))
 			break

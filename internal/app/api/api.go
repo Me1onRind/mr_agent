@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/Me1onRind/mr_agent/internal/infrastructure/cache/llm"
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/logger"
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/middleware"
 	"github.com/Me1onRind/mr_agent/internal/initialize"
@@ -52,5 +53,6 @@ func (a *APIService) RegisterRouter(router *gin.RouterGroup) *APIService {
 func (a *APIService) Init(ctx context.Context) *APIService {
 	logger.InitLogger(os.Stdout, slog.LevelDebug, true)
 	_ = initialize.InitOpentracing("mr_agent", "0.0.1")(ctx)
+	_ = llm.InitLLMCache(ctx)
 	return a
 }

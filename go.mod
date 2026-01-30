@@ -3,6 +3,7 @@ module github.com/Me1onRind/mr_agent
 go 1.25.5
 
 require (
+	github.com/alecthomas/kong v1.13.0
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/json-iterator/go v1.1.12
