@@ -12,7 +12,7 @@ func main() {
 	r := gin.New()
 
 	ctx := context.Background()
-	api.NewAPIServer().
+	api.NewAPIService().
 		RegisterMiddleware(r).
 		RegisterRouter(r.Group("/")).
 		Init(ctx)

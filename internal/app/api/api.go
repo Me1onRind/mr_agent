@@ -13,20 +13,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type APIServer struct {
+type APIService struct {
 	PingUsecase *ping.PingUsecase
 	ChatUsecase *chat.ChatUsecase
 }
 
-func NewAPIServer() *APIServer {
-	a := &APIServer{
+func NewAPIService() *APIService {
+	a := &APIService{
 		PingUsecase: ping.NewPingUsecase(),
 		ChatUsecase: chat.NewChatUsecase(),
 	}
 	return a
 }
 
-func (a *APIServer) RegisterMiddleware(r *gin.Engine) *APIServer {
+func (a *APIService) RegisterMiddleware(r *gin.Engine) *APIService {
 	r.Use(
 		middleware.Recover(),
 		middleware.Tracer(),
@@ -35,7 +35,7 @@ func (a *APIServer) RegisterMiddleware(r *gin.Engine) *APIServer {
 	return a
 }
 
-func (a *APIServer) RegisterRouter(router *gin.RouterGroup) *APIServer {
+func (a *APIService) RegisterRouter(router *gin.RouterGroup) *APIService {
 	router = router.Group("/api")
 
 	pingGroup := router.Group("/ping")
@@ -49,7 +49,7 @@ func (a *APIServer) RegisterRouter(router *gin.RouterGroup) *APIServer {
 	return a
 }
 
-func (a *APIServer) Init(ctx context.Context) *APIServer {
+func (a *APIService) Init(ctx context.Context) *APIService {
 	logger.InitLogger(os.Stdout, slog.LevelDebug, true)
 	_ = initialize.InitOpentracing("mr_agent", "0.0.1")(ctx)
 	return a

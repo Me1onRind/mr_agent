@@ -6,9 +6,13 @@
 .
 ├── cmd                         Application entry
 │   └── api                     API service entry
+│   └── cli                     CLI service entry
 └── internal
     ├── app                     Application assembly
     │   └── api                  API wiring & bootstrap
+    │   └── cli                  CLI wiring & bootstrap
+    ├── domain                  Domain layer
+    │   └── dialog               Dialog domain
     ├── errcode                 Error codes & wrappers
     ├── infrastructure          Infrastructure & middleware
     │   ├── cache                Caching
@@ -34,6 +38,7 @@
 
 - `Ping` endpoint: health check & availability
 - `Chat` endpoint: chat entrypoint
+- `CLI` entry: dialog with LLM in terminal
 - Middleware: access logs, JSON gateway, recovery, tracing
 - Cache: LLM cache and simple cache implementation
 - Core utilities: logging, error codes, goroutine helpers, client wrappers
@@ -49,4 +54,10 @@ Or run directly:
 
 ```
 go run ./cmd/api/main.go
+```
+
+### CLI Service
+
+```
+go run ./cmd/cli/main.go
 ```

@@ -1,5 +1,7 @@
 package strutil
 
+import "github.com/google/uuid"
+
 func TruncateString(value string, maxSize int) string {
 	if maxSize <= 0 {
 		return ""
@@ -14,4 +16,8 @@ func TruncateString(value string, maxSize int) string {
 	headSize := (maxSize - len(separator)) / 2
 	tailSize := maxSize - len(separator) - headSize
 	return value[:headSize] + separator + value[len(value)-tailSize:]
+}
+
+func NewUUID() string {
+	return uuid.NewString()
 }
