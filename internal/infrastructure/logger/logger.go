@@ -38,7 +38,7 @@ func InitLogger(w io.Writer, level slog.Level, json bool) {
 	slog.SetDefault(lg)
 }
 
-func CtxLogger(ctx context.Context) *slog.Logger {
+func LoggerFromCtx(ctx context.Context) *slog.Logger {
 	var lg *slog.Logger
 	lgValue := ctx.Value(loggerKey{})
 	if lgValue == nil {

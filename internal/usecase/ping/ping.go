@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/Me1onRind/mr_agent/internal/infrastructure/client/agent"
+	"github.com/Me1onRind/mr_agent/internal/infrastructure/agent/client"
 	"github.com/Me1onRind/mr_agent/internal/infrastructure/logger"
 	"github.com/Me1onRind/mr_agent/internal/protocol/http/ping"
 	"github.com/openai/openai-go/v3"
@@ -30,8 +30,8 @@ func (p *PingUsecase) Panic(ctx context.Context, request *struct{}) (*struct{}, 
 }
 
 func (p *PingUsecase) HelloToAgent(ctx context.Context, request *ping.HelloToAgentRequest) (*ping.HelloToAgentResponse, error) {
-	log := logger.CtxLogger(ctx)
-	agentClient := agent.NewAgentClient(ctx)
+	log := logger.LoggerFromCtx(ctx)
+	agentClient := agent.NewAgentClient()
 	completion, err := agentClient.Chat(ctx, []openai.ChatCompletionMessageParamUnion{
 		openai.UserMessage(request.Msg),
 	})

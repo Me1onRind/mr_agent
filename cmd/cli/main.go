@@ -13,6 +13,6 @@ func main() {
 	cliService := cli.NewCLIService()
 	err := cliService.Init(ctx).Run(ctx)
 	if err != nil {
-		logger.CtxLogger(ctx).Error("run err", slog.String("error", err.Error()))
+		logger.LoggerFromCtx(ctx).Error("run err", slog.String("error", err.Error()))
 	}
 }

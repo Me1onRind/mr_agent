@@ -16,7 +16,7 @@ type AgentClient struct {
 	openaiClient *openai.Client
 }
 
-func NewAgentClient(ctx context.Context) *AgentClient {
+func NewAgentClient() *AgentClient {
 	a := &AgentClient{}
 	client := openai.NewClient(
 		option.WithAPIKey(os.Getenv("QWEN_TOKEN")),
@@ -28,20 +28,30 @@ func NewAgentClient(ctx context.Context) *AgentClient {
 
 func (a *AgentClient) Chat(ctx context.Context,
 	msgs []openai.ChatCompletionMessageParamUnion) (*openai.ChatCompletion, error) {
+	return a.ChatWithTools(ctx, msgs, nil)
+}
+
+func (a *AgentClient) ChatWithTools(
+	ctx context.Context,
+	msgs []openai.ChatCompletionMessageParamUnion,
+	tools []openai.ChatCompletionToolUnionParam,
+) (*openai.ChatCompletion, error) {
 	startTime := time.Now()
-	log := logger.CtxLogger(ctx)
+	log := logger.LoggerFromCtx(ctx)
 	defer func() {
-		log.Info("new agent done", slog.Int64("duration_ms", time.Since(startTime).Milliseconds()))
+		log.Info("new agent done", slog.Int64("latency", time.Since(startTime).Milliseconds()))
 	}()
 	span, _ := apm.StartSpan(ctx, "new_agent", "openai")
 	defer span.End()
 	client := a.openaiClient
-	chatCompletion, err := client.Chat.Completions.New(
-		context.TODO(), openai.ChatCompletionNewParams{
-			Messages: msgs,
-			Model:    "qwen-plus",
-		},
-	)
+	params := openai.ChatCompletionNewParams{
+		Messages: msgs,
+		Model:    "qwen-plus",
+	}
+	if len(tools) > 0 {
+		params.Tools = tools
+	}
+	chatCompletion, err := client.Chat.Completions.New(context.TODO(), params)
 
 	if err != nil {
 		log.Error("client.Chat.Completions.New failed", slog.String("error", err.Error()))

@@ -43,7 +43,7 @@ func jsonGateway[A any, B any](c *gin.Context, handler HTTPHandler[A, B]) []byte
 
 	jsonData, err := jsoniter.Marshal(response)
 	if err != nil {
-		logger.CtxLogger(ctx).Error("marshal response failed", slog.String("error", err.Error()))
+		logger.LoggerFromCtx(ctx).Error("marshal response failed", slog.String("error", err.Error()))
 		jsonData, _ = jsoniter.Marshal(&JsonResponse{
 			Code:    errcode.JsonEncodeFailedCode,
 			Message: fmt.Sprintf("Encode Response Object Failed, cause:[%s]", err.Error()),

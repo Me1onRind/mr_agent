@@ -11,7 +11,7 @@ import (
 
 func LogPanicStack(ctx context.Context, err any) {
 	stack := debug.Stack()
-	logger.CtxLogger(ctx).Error("panic", slog.Any("error", err), slog.String("stack", string(stack)))
+	logger.LoggerFromCtx(ctx).Error("panic", slog.Any("error", err), slog.String("stack", string(stack)))
 	fmt.Println(err)
 	fmt.Println(string(stack))
 }
